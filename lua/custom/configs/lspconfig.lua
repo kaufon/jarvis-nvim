@@ -43,6 +43,9 @@ local servers = {
   "volar",
   
 }
+require('render-markdown').setup({
+ completions = { lsp = { enabled = true } },
+})
 require('java').setup()
 require('lspconfig').jdtls.setup({})
 for _, server_name in ipairs(servers) do
