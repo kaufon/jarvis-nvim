@@ -1,24 +1,24 @@
 return {
   'nvim-java/nvim-java',
-  dependencies = {
-    "nvim-java/lua-async-await",
-    "nvim-java/nvim-java-core",
-    "nvim-java/nvim-java-test",
-    "nvim-java/nvim-java-dap",
-    "MunifTanjim/nui.nvim",
-    "neovim/nvim-lspconfig",
-    "mfussenegger/nvim-dap",
-    "ibhagwan/fzf-lua", -- optional
-    {
-      "williamboman/mason.nvim",
-      opts = {
-        registries = {
-          'github:nvim-java/mason-registry',
-          'github:mason-org/mason-registry'
-        },
-      },
-    },
-  },
+  -- dependencies = {
+  --   "nvim-java/lua-async-await",
+  --   "nvim-java/nvim-java-core",
+  --   "nvim-java/nvim-java-test",
+  --   "nvim-java/nvim-java-dap",
+  --   "MunifTanjim/nui.nvim",
+  --   "neovim/nvim-lspconfig",
+  --   "mfussenegger/nvim-dap",
+  --   "ibhagwan/fzf-lua", -- optional
+  --   {
+  --     "williamboman/mason.nvim",
+  --     opts = {
+  --       registries = {
+  --         'github:nvim-java/mason-registry',
+  --         'github:mason-org/mason-registry'
+  --       },
+  --     },
+  --   },
+  -- },
   config = function()
     vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, { desc = 'LSP declaration' })
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { desc = 'LSP definition' })
