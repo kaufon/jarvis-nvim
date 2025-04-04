@@ -26,7 +26,6 @@ local servers = {
 
   "clangd",
   "pylsp",
-  "solargraph",
   "ruby_lsp",
   "lua_ls",
   "html",
@@ -41,36 +40,25 @@ local servers = {
   "gopls",
   "prismals",
   "volar",
-  
+  "solargraph"
 }
 require('render-markdown').setup({
- completions = { lsp = { enabled = true } },
+  completions = { lsp = { enabled = true } },
 })
+
 require('java').setup()
+
 require('lspconfig').jdtls.setup({})
 for _, server_name in ipairs(servers) do
-    lspconfig[server_name].setup({
-      on_attach = function(client, bufnr)
-        client.server_capabilities.signatureHelpProvider = false
-        on_attach(client, bufnr)
-      end,
-      capabilities = capabilities
-    })
+  lspconfig[server_name].setup({
+    on_attach = function(client, bufnr)
+      client.server_capabilities.signatureHelpProvider = false
+      on_attach(client, bufnr)
+    end,
+    capabilities = capabilities,
+    settings = servers[server_name]
+  })
 end
-lspconfig.solargraph.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    solargraph = {
-      diagnostics = true,
-      completion = true,
-      folding = true,
-      references = true,
-      rename = true,
-      symbols = true
-    }
-  },
-})
 lspconfig.sqlls.setup {
   capabilities = capabilities,
   root_dir = function(_)
@@ -149,4 +137,54 @@ lspconfig.volar.setup({
       }
     }
   },
+})
+lspconfig.ruby_lsp.setup({
+
+  on_attach = on_attach,
+
+  capabilities = capabilities,
+
+
+  filetypes = { "ruby" },
+
+  root_dir = util.root_pattern("Gemfile", ".git"),
+
+  init_options = {
+
+    formatter = "auto",
+
+    single_file_support = true,
+
+  },
+
+})
+lspconfig.solargraph.setup({
+
+  on_attach = on_attach,
+
+  capabilities = capabilities,
+
+
+  filetypes = { "ruby" },
+
+  root_dir = util.root_pattern("Gemfile", ".git"),
+
+  settings = {
+
+    solargraph = {
+
+      diagnostics = true,
+
+      formatting = true,
+
+      completion = true,
+
+      autoformat = true,
+
+      useBundler = false,
+
+    },
+
+  },
+
 })
