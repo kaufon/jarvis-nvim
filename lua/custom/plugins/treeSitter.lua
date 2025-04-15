@@ -24,6 +24,7 @@ local treeSitter =
       "json",
       "java",
       "groovy",
+      "rust"
     }
   end
 }

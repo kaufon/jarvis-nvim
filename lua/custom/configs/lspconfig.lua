@@ -164,6 +164,7 @@ lspconfig.solargraph.setup({
 
   capabilities = capabilities,
 
+  cmd = { "solargraph", "stdio" },
 
   filetypes = { "ruby" },
 

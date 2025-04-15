@@ -22,7 +22,8 @@ local mason =
       "biome",
       "python-lsp-server",
       "gopls",
-      "prisma-language-server"
+      "prisma-language-server",
+      "rust-analyzer"
 
     }
   }

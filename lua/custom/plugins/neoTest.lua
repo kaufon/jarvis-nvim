@@ -9,16 +9,15 @@ return {
       "nvim-treesitter/nvim-treesitter",
       "olimorris/neotest-rspec",
       "marilari88/neotest-vitest",
-      {
-        'nvim-java/neotest-jdtls',
-      },
+      { "fredrikaverpil/neotest-golang", version = "*" },
     },
     config = function()
       require("neotest").setup({
         adapters = {
           require("neotest-rspec"),
           require("neotest-vitest"),
-          require('neotest-jdtls')
+          require("rustaceanvim.neotest"),
+          require("neotest-golang"),
         },
       })
     end,

@@ -39,12 +39,5 @@ return {
     vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous Diagnostic' })
     vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next Diagnostic' })
     vim.keymap.set('n', '<leader>fs', ":FzfLua lsp_workspace_symbols<CR>", { desc = 'Find beans' })
-
-    vim.api.nvim_set_keymap('n', '<leader>crc', ':JavaRefactorExtractConstant<CR>', { desc = "Extract Constant" })
-    vim.api.nvim_set_keymap('n', '<leader>crv', ':JavaRefactorExtractVariable<CR>', { desc = "Extract Variable" })
-    vim.api.nvim_set_keymap('n', '<leader>crm', ':JavaRefactorExtractMethod<CR>', { desc = "Extract Method" })
-    vim.api.nvim_set_keymap('n', '<leader>crf', ':JavaRefactorExtractField<CR>', { desc = "Extract Field" })
-    vim.api.nvim_set_keymap('n', '<leader>cra', ':JavaRefactorExtractVariableAllOccurrence<CR>',
-      { desc = "Extract All occurrences of value" })
   end,
 }
