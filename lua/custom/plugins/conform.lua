@@ -20,6 +20,7 @@ return {
         bash = { "beautysh" },
         yaml = { "yamlfix" },
         css = { "prettierd" },
+        markdown = { "prettierd" },
         scss = { "prettierd" },
         go = { "gofumpt", "goimports_reviser",stop_after_first=false },
         xml = { "xmllint" },
