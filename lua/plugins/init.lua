@@ -252,4 +252,10 @@ if #config.plugins > 0 then
   table.insert(default_plugins, { import = config.plugins })
 end
 
+vim.filetype.add({
+  extension = {
+    rest = "http"
+  }
+})
+
 require("lazy").setup(default_plugins, config.lazy_nvim)

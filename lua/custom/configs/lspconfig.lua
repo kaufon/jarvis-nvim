@@ -25,6 +25,7 @@ end
 local servers = {
 
   "clangd",
+  "kulala_ls",
   "pylsp",
   "ruby_lsp",
   "lua_ls",
