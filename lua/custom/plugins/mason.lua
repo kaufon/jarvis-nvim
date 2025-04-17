@@ -14,16 +14,25 @@ local mason =
       "tailwindcss-language-server",
       "solang",
       "typescript-language-server",
-      "prettierd",
       "solhint",
       "solargraph",
       "ruby-lsp",
       "sqlls",
-      "biome",
       "python-lsp-server",
       "gopls",
       "prisma-language-server",
-      "rust-analyzer"
+      "rust-analyzer",
+      ----FORMATERS-----
+      "stylua",
+      "rubyfmt",
+      "htmlbeautifier",
+      "beautysh",
+      "yamlfix",
+      "prettierd",
+      "gofumpt",
+      "goimports_reviser",
+      "xmllint",
+      "biome",
 
     }
   }
