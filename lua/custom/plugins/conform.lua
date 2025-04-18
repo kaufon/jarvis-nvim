@@ -22,7 +22,7 @@ return {
         css = { "prettierd" },
         markdown = { "prettierd" },
         scss = { "prettierd" },
-        go = { "gofumpt", "goimports_reviser",stop_after_first=false },
+        go = { "gofumpt", "goimports-reviser",stop_after_first=false },
         xml = { "xmllint" },
         graphql = { "prettierd" },
         json = { "prettierd" },
