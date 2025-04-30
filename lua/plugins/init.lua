@@ -260,5 +260,7 @@ vim.filetype.add({
     rest = "http",
   }
 })
-
+vim.cmd [[
+  highlight LspInlayHint guifg=#B0B0B0 guibg=#2E2E2E
+]]
 require("lazy").setup(default_plugins, config.lazy_nvim)
