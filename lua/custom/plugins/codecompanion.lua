@@ -4,6 +4,12 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
+    {
+      "Davidyz/VectorCode",
+      version = "*",
+      build = "pipx upgrade vectorcode",
+      dependencies = { "nvim-lua/plenary.nvim" },
+    },
   },
   event = "VeryLazy",
   opts = {
@@ -20,16 +26,14 @@ return {
       chat = {
         roles = {
           user = "K.V",
-          llm = "Jarvis A.I"
-        }
-      }
+          llm = "Jarvis A.I",
+        },
+      },
     },
     display = {
       chat = {
         intro_message = "Welcome home sir! I am Jarvis A.I, your personal assistant. How can I help you today?",
-      }
-    }
-
+      },
+    },
   },
-
 }

@@ -254,7 +254,7 @@ end
 
 vim.filetype.add({
   extension = {
-    rest = "http"
+    rest = "http",
   }
 })
 
