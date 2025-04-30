@@ -32,7 +32,18 @@ local servers = {
   "solargraph",
 }
 
-require("java").setup()
+require("java").setup {
+  settings = {
+    java = {
+      inlayHints = {
+        parameterNames = {
+          enabled = "all",
+          exclusions = { "this" },
+        },
+      },
+    },
+  },
+}
 
 require("lspconfig").jdtls.setup {}
 for _, server_name in ipairs(servers) do
@@ -52,9 +63,9 @@ lspconfig.volar.setup {
     vue = {
       hybridMode = false,
     },
-    typescript={
-      tsdk= vim.fn.expand("~/.local/share/nvim/mason/packages/vue-language-server/node_modules/typescript/lib/")
-    }
+    typescript = {
+      tsdk = vim.fn.expand "~/.local/share/nvim/mason/packages/vue-language-server/node_modules/typescript/lib/",
+    },
   },
 }
 
