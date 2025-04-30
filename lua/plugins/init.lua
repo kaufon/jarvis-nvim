@@ -108,6 +108,9 @@ local default_plugins = {
   {
     "neovim/nvim-lspconfig",
     event = "User FilePost",
+    opts = {
+      inlay_hints = { enabled = true },
+    },
     config = function()
       require "plugins.configs.lspconfig"
     end,

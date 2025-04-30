@@ -11,6 +11,9 @@ M.on_attach = function(client, bufnr)
   if client.server_capabilities.signatureHelpProvider then
     require("nvchad.signature").setup(client)
   end
+  if client.server_capabilities.inlayHintProvider then
+    vim.lsp.inlay_hint.enable(true, { bufnr })
+  end
 end
 
 -- disable semantic tokens

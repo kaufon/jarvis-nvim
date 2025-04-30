@@ -1,26 +1,16 @@
-local base = require("plugins.configs.lspconfig")
+local base = require "plugins.configs.lspconfig"
 
-local mason_packages = vim.fn.stdpath("data") .. "/mason/packages"
+local mason_registry = require "mason-registry"
 
-local volar_path = mason_packages .. "/vue-language-server/node_modules/@vue/language-server"
+local vue_ls_path = mason_registry.get_package("vue-language-server"):get_install_path()
+  .. "/node_modules/@vue/language-server"
 
 local on_attach = base.on_attach
 
 local capabilities = base.capabilities
 local util = require "lspconfig/util"
 
-
-local lspconfig = require("lspconfig")
-
-local function organize_imports()
-  local params = {
-    command = "_typescript.organizeImports",
-    arguments = { vim.api.nvim_buf_get_name(0) },
-  }
-
-  vim.lsp.buf.execute_command(params)
-end
-
+local lspconfig = require "lspconfig"
 
 local servers = {
 
@@ -37,35 +27,37 @@ local servers = {
   "solang",
   "solidity",
   "ts_ls",
-  "sqlls",
   "gopls",
   "prismals",
-  "volar",
-  "solargraph"
+  "solargraph",
 }
-require('render-markdown').setup({
-  completions = { lsp = { enabled = true } },
-})
 
-require('java').setup()
+require("java").setup()
 
-require('lspconfig').jdtls.setup({})
+require("lspconfig").jdtls.setup {}
 for _, server_name in ipairs(servers) do
-  lspconfig[server_name].setup({
+  lspconfig[server_name].setup {
     on_attach = function(client, bufnr)
       client.server_capabilities.signatureHelpProvider = false
       on_attach(client, bufnr)
     end,
     capabilities = capabilities,
-    settings = servers[server_name]
-  })
+    settings = servers[server_name],
+  }
 end
-lspconfig.sqlls.setup {
+lspconfig.volar.setup {
+  on_attach = on_attach,
   capabilities = capabilities,
-  root_dir = function(_)
-    return vim.loop.cwd()
-  end,
+  init_options = {
+    vue = {
+      hybridMode = false,
+    },
+    typescript={
+      tsdk= vim.fn.expand("~/.local/share/nvim/mason/packages/vue-language-server/node_modules/typescript/lib/")
+    }
+  },
 }
+
 lspconfig.gopls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
@@ -77,74 +69,45 @@ lspconfig.gopls.setup {
       completeUnimported = true,
       usePlaceholders = true,
       analyses = {
-        unusedparams = true
-      }
-    }
-  }
+        unusedparams = true,
+      },
+    },
+  },
 }
-lspconfig.ts_ls.setup({
+lspconfig.ts_ls.setup {
   on_attach = on_attach,
   capabilities = capabilities,
   init_options = {
-    preferences = {
-      disableSuggestions = true,
-    },
     plugins = {
       {
-        name = '@vue/typescript-plugin',
-        location = volar_path,
-        languages = { "vue" }
+        name = "@vue/typescript-plugin",
+        location = vue_ls_path,
+        languages = { "vue" },
       },
-    }
+    },
   },
-  filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
-  commands = {
-    OrganizeImports = {
-      organize_imports,
-      description = "Organize Imports",
-    },
-  }
-})
-lspconfig.volar.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-  init_options = {
-    vue = {
-      hybridMode = false,
-    },
+  filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+  settings = {
     typescript = {
-      tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib",
+      inlayHints = {
+        includeInlayParameterNameHints = "all",
+        enumMemberValues = { enabled = true },
+        functionLikeReturnTypes = { enabled = true },
+        propertyDeclarationTypes = { enabled = true },
+        parameterTypes = {
+          enabled = true,
+          suppressWhenArgumentMatchesName = false,
+        },
+        variableTypes = { enabled = true },
+      },
     },
-    settings = {
-      typescript = {
-        inlayHints = {
-          enumMemberValues = {
-            enabled = true,
-          },
-          functionLikeReturnTypes = {
-            enabled = true,
-          },
-          propertyDeclarationTypes = {
-            enabled = true,
-          },
-          parameterTypes = {
-            enabled = true,
-            suppressWhenArgumentMatchesName = true,
-          },
-          variableTypes = {
-            enabled = true,
-          },
-        }
-      }
-    }
   },
-})
-lspconfig.ruby_lsp.setup({
+}
+lspconfig.ruby_lsp.setup {
 
   on_attach = on_attach,
 
   capabilities = capabilities,
-
 
   filetypes = { "ruby" },
 
@@ -155,11 +118,9 @@ lspconfig.ruby_lsp.setup({
     formatter = "auto",
 
     single_file_support = true,
-
   },
-
-})
-lspconfig.solargraph.setup({
+}
+lspconfig.solargraph.setup {
 
   on_attach = on_attach,
 
@@ -184,9 +145,6 @@ lspconfig.solargraph.setup({
       autoformat = true,
 
       useBundler = false,
-
     },
-
   },
-
-})
+}
