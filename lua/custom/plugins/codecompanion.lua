@@ -22,6 +22,11 @@ return {
         },
       })
     end,
+    extensions = {
+      vectorcode = {
+        opts = { add_tool = true, add_slash_command = true, tool_opts = {} },
+      },
+    },
     strategies = {
       chat = {
         roles = {
