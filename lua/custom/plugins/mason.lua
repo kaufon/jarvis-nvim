@@ -1,5 +1,4 @@
-local mason =
-{
+local mason = {
   "williamboman/mason.nvim",
   opts = {
     ensure_installed = {
@@ -33,8 +32,8 @@ local mason =
       "goimports_reviser",
       "xmllint",
       "biome",
-
-    }
-  }
+      "ruff",
+    },
+  },
 }
 return mason

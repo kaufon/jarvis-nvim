@@ -16,7 +16,7 @@ local servers = {
 
   "clangd",
   "kulala_ls",
-  "pylsp",
+  "pyright",
   "ruby_lsp",
   "lua_ls",
   "html",
