@@ -33,6 +33,8 @@ local mason = {
       "xmllint",
       "biome",
       "ruff",
+      ----DEBUGGERS----,
+      "debugpy",
     },
   },
 }
