@@ -21,6 +21,7 @@ local mason = {
       "gopls",
       "prisma-language-server",
       "rust-analyzer",
+      "astro",
       ----FORMATERS-----
       "stylua",
       "rubyfmt",

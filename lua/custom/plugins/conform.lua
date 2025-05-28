@@ -31,6 +31,7 @@ return {
         javascriptreact = { "biome" },
         typescriptreact = { "biome" },
         python = { "ruff_format", "ruff_fix", "ruff_organize_imports" },
+        astro = { "prettierd" },
       },
       format_on_save = false,
       vim.keymap.set({ "n", "v" }, "<leader>fm", function()

@@ -30,6 +30,7 @@ local servers = {
   "gopls",
   "prismals",
   "solargraph",
+  "astro",
 }
 
 require("java").setup {
