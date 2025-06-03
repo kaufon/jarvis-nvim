@@ -1,5 +1,7 @@
 local mason = {
-  "williamboman/mason.nvim",
+  "mason-org/mason.nvim",
+  version = "^1.0.0", -- 👈 pin to a specific version
+  lazy = true,
   opts = {
     ensure_installed = {
       --mason package name goes here,for consult go to: https://github.com/williamboman/mason-lspconfig.nvim/blob/main/doc%2Fserver-mapping.md
@@ -21,6 +23,7 @@ local mason = {
       "gopls",
       "prisma-language-server",
       "rust-analyzer",
+      "vue-language-server",
       "astro",
       ----FORMATERS-----
       "stylua",
@@ -34,6 +37,7 @@ local mason = {
       "xmllint",
       "biome",
       "ruff",
+      "google-java-format",
       ----DEBUGGERS----,
       "debugpy",
     },

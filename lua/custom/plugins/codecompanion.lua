@@ -4,12 +4,12 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
-    {
-      "Davidyz/VectorCode",
-      version = "*",
-      build = "pipx upgrade vectorcode",
-      dependencies = { "nvim-lua/plenary.nvim" },
-    },
+    -- {
+    --   "Davidyz/VectorCode",
+    --   version = "*",
+    --   build = "pipx upgrade vectorcode",
+    --   dependencies = { "nvim-lua/plenary.nvim" },
+    -- },
   },
   event = "VeryLazy",
   opts = {
@@ -23,9 +23,9 @@ return {
       })
     end,
     extensions = {
-      vectorcode = {
-        opts = { add_tool = true, add_slash_command = true, tool_opts = {} },
-      },
+      -- vectorcode = {
+      --   opts = { add_tool = true, add_slash_command = true, tool_opts = {} },
+      -- },
     },
     strategies = {
       chat = {

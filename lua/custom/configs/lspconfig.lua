@@ -2,8 +2,7 @@ local base = require "plugins.configs.lspconfig"
 
 local mason_registry = require "mason-registry"
 
-local vue_ls_path = mason_registry.get_package("vue-language-server"):get_install_path()
-  .. "/node_modules/@vue/language-server"
+local vue_ls_path = "~/.local/share/nvim/mason/packages/vue-language-server/node_modules/@vue/language-server/"
 
 local on_attach = base.on_attach
 
@@ -31,22 +30,11 @@ local servers = {
   "prismals",
   "solargraph",
   "astro",
+  -- "jdtls",
 }
 
-require("java").setup {
-  settings = {
-    java = {
-      inlayHints = {
-        parameterNames = {
-          enabled = "all",
-          exclusions = { "this" },
-        },
-      },
-    },
-  },
-}
-
-require("lspconfig").jdtls.setup {}
+-- require("java").setup()
+-- require("lspconfig").jdtls.setup({})
 for _, server_name in ipairs(servers) do
   lspconfig[server_name].setup {
     on_attach = function(client, bufnr)
