@@ -1,3 +1,4 @@
+vim.lsp.set_log_level "debug"
 local function get_jdtls()
   -- Get the Mason Registry to gain access to downloaded binaries
   local mason_registry = require "mason-registry"
@@ -130,26 +131,26 @@ local function setup_jdtls()
 
   -- Set the command that starts the JDTLS language server jar
   local cmd = {
-    vim.fn.expand("~/.local/share/nvim/mason/packages/jdtls/bin/jdtls"),
-    "java",
-    "-Declipse.application=org.eclipse.jdt.ls.core.id1",
-    "-Dosgi.bundles.defaultStartLevel=4",
-    "-Declipse.product=org.eclipse.jdt.ls.core.product",
-    "-Dlog.protocol=true",
-    "-Dlog.level=ALL",
-    "-Xmx1g",
-    "--add-modules=ALL-SYSTEM",
-    "--add-opens",
-    "java.base/java.util=ALL-UNNAMED",
-    "--add-opens",
-    "java.base/java.lang=ALL-UNNAMED",
-    "-javaagent:" .. lombok,
-    "-jar",
-    launcher,
-    "-configuration",
-    os_config,
-    "-data",
-    workspace_dir
+    -- "java",
+    -- "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+    -- "-Dosgi.bundles.defaultStartLevel=4",
+    -- "-Declipse.product=org.eclipse.jdt.ls.core.product",
+    -- "-Dlog.protocol=true",
+    -- "-Dlog.level=ALL",
+    -- "-Xmx1g",
+    -- "--add-modules=ALL-SYSTEM",
+    -- "--add-opens",
+    -- "java.base/java.util=ALL-UNNAMED",
+    -- "--add-opens",
+    -- "java.base/java.lang=ALL-UNNAMED",
+    -- "-javaagent:" .. lombok,
+    -- "-jar",
+    -- launcher,
+    -- "-configuration",
+    -- os_config,
+    -- "-data",
+    -- workspace_dir,
+    vim.fn.expand "~/.local/share/nvim/mason/bin/jdtls",
   }
 
   -- Configure settings in the JDTLS server
@@ -257,7 +258,6 @@ local function setup_jdtls()
 
   -- Function that will be ran once the language server is attached
   local on_attach = function(_, bufnr)
-    -- Map the Java specific key mappings once the server is attached
     java_keymaps()
 
     -- Setup the java debug adapter of the JDTLS server
@@ -290,7 +290,6 @@ local function setup_jdtls()
     on_attach = on_attach,
   }
 
-  -- Start the JDTLS server
   require("jdtls").start_or_attach(config)
 end
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "LSP declaration" })

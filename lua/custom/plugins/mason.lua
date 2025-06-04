@@ -25,6 +25,7 @@ local mason = {
       "rust-analyzer",
       "vue-language-server",
       "astro",
+      "jdtls",
       ----FORMATERS-----
       "stylua",
       "rubyfmt",

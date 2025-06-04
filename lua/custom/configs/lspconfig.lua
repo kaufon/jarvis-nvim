@@ -30,12 +30,13 @@ local servers = {
   "prismals",
   "solargraph",
   "astro",
-  -- "jdtls",
+  "jdtls",
 }
 
 -- require("java").setup()
 -- require("lspconfig").jdtls.setup({})
 for _, server_name in ipairs(servers) do
+  if server_name ~= "jdtls" then
   lspconfig[server_name].setup {
     on_attach = function(client, bufnr)
       client.server_capabilities.signatureHelpProvider = false
@@ -44,6 +45,7 @@ for _, server_name in ipairs(servers) do
     capabilities = capabilities,
     settings = servers[server_name],
   }
+  end
 end
 lspconfig.volar.setup {
   on_attach = on_attach,
