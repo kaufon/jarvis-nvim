@@ -1,44 +1,4 @@
-vim.lsp.set_log_level "debug"
-local function get_jdtls()
-  -- Get the Mason Registry to gain access to downloaded binaries
-  local mason_registry = require "mason-registry"
-  -- Find the JDTLS package in the Mason Regsitry
-  local jdtls = mason_registry.get_package "jdtls"
-  -- Find the full path to the directory where Mason has downloaded the JDTLS binaries
-  local jdtls_path = jdtls:get_install_path()
-  -- Obtain the path to the jar which runs the language server
-  local launcher = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
-  -- Declare white operating system we are using, windows use win, macos use mac
-  local SYSTEM = "linux"
-  -- Obtain the path to configuration files for your specific operating system
-  local config = jdtls_path .. "/config_" .. SYSTEM
-  -- Obtain the path to the Lomboc jar
-  local lombok = jdtls_path .. "/lombok.jar"
-  return launcher, config, lombok
-end
-
-local function get_workspace()
-  -- Get the home directory of your operating system
-  local home = os.getenv "HOME"
-  -- Declare a directory where you would like to store project information
-  local workspace_path = home .. "/code/workspace/"
-  -- Determine the project name
-  local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-  -- Create the workspace directory by concatenating the designated workspace path and the project name
-  local workspace_dir = workspace_path .. project_name
-  return workspace_dir
-end
-
 local function java_keymaps()
-  -- Allow yourself to run JdtCompile as a Vim command
-  vim.cmd "command! -buffer -nargs=? -complete=custom,v:lua.require'jdtls'._complete_compile JdtCompile lua require('jdtls').compile(<f-args>)"
-  -- Allow yourself/register to run JdtUpdateConfig as a Vim command
-  vim.cmd "command! -buffer JdtUpdateConfig lua require('jdtls').update_project_config()"
-  -- Allow yourself/register to run JdtBytecode as a Vim command
-  vim.cmd "command! -buffer JdtBytecode lua require('jdtls').javap()"
-  -- Allow yourself/register to run JdtShell as a Vim command
-  vim.cmd "command! -buffer JdtJshell lua require('jdtls').jshell()"
-
   -- Set a Vim motion to <Space> + <Shift>J + o to organize imports in normal mode
   vim.keymap.set(
     "n",
@@ -93,68 +53,51 @@ local function java_keymaps()
   -- Set a Vim motion to <Space> + <Shift>J + u to update the project configuration
   vim.keymap.set("n", "<leader>Ju", "<Cmd> JdtUpdateConfig<CR>", { desc = "[J]ava [U]pdate Config" })
 end
+local on_attach = function(_, bufnr)
+  java_keymaps()
+  vim.lsp.codelens.refresh()
+  vim.api.nvim_create_autocmd("BufWritePost", {
+    pattern = { "*.java" },
+    callback = function()
+      local _, _ = pcall(vim.lsp.codelens.refresh)
+    end,
+  })
+end
+local home = os.getenv "HOME"
+local workspace_path = home .. "/.local/share/nvim/jdtls-workspace/"
+local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+local workspace_dir = workspace_path .. project_name
 
-local function setup_jdtls()
-  -- Get access to the jdtls plugin and all of its functionality
-  local jdtls = require "jdtls"
+local status, jdtls = pcall(require, "jdtls")
+if not status then
+  return
+end
+local extendedClientCapabilities = jdtls.extendedClientCapabilities
+local config = {
+  cmd = {
+    "/home/kaufon/.sdkman/candidates/java/current/bin/java", -- The full, absolute path
+    "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+    "-Dosgi.bundles.defaultStartLevel=4",
+    "-Declipse.product=org.eclipse.jdt.ls.core.product",
+    "-Dlog.protocol=true",
+    "-Dlog.level=ALL",
+    "-Xmx1g",
+    "--add-modules=ALL-SYSTEM", -- REMOVED
+    "--add-opens", -- REMOVED
+    "java.base/java.util=ALL-UNNAMED", -- REMOVED
+    "--add-opens", -- REMOVED
+    "java.base/java.lang=ALL-UNNAMED", -- REMOVED
+    "-javaagent:" .. home .. "/.local/share/nvim/mason/packages/jdtls/lombok.jar",
+    "-jar",
+    vim.fn.glob(home .. "/.local/share/nvim/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_*.jar"),
+    "-configuration",
+    home .. "/.local/share/nvim/mason/packages/jdtls/config_linux",
+    "-data", -- It is good practice to explicitly use -data
+    workspace_dir,
+  },
+  root_dir = require("jdtls.setup").find_root { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" },
 
-  -- Get the paths to the jdtls jar, operating specific configuration directory, and lombok jar
-  local launcher, os_config, lombok = get_jdtls()
-
-  -- Get the path you specified to hold project information
-  local workspace_dir = get_workspace()
-
-  local root_dir = jdtls.setup.find_root { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
-
-  -- Tell our JDTLS language features it is capable of
-  local capabilities = {
-    workspace = {
-      configuration = true,
-    },
-    textDocument = {
-      completion = {
-        snippetSupport = false,
-      },
-    },
-  }
-
-  local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-  for k, v in pairs(lsp_capabilities) do
-    capabilities[k] = v
-  end
-
-  -- Get the default extended client capablities of the JDTLS language server
-  local extendedClientCapabilities = jdtls.extendedClientCapabilities
-  -- Modify one property called resolveAdditionalTextEditsSupport and set it to true
-  extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
-
-  -- Set the command that starts the JDTLS language server jar
-  local cmd = {
-    -- "java",
-    -- "-Declipse.application=org.eclipse.jdt.ls.core.id1",
-    -- "-Dosgi.bundles.defaultStartLevel=4",
-    -- "-Declipse.product=org.eclipse.jdt.ls.core.product",
-    -- "-Dlog.protocol=true",
-    -- "-Dlog.level=ALL",
-    -- "-Xmx1g",
-    -- "--add-modules=ALL-SYSTEM",
-    -- "--add-opens",
-    -- "java.base/java.util=ALL-UNNAMED",
-    -- "--add-opens",
-    -- "java.base/java.lang=ALL-UNNAMED",
-    -- "-javaagent:" .. lombok,
-    -- "-jar",
-    -- launcher,
-    -- "-configuration",
-    -- os_config,
-    -- "-data",
-    -- workspace_dir,
-    vim.fn.expand "~/.local/share/nvim/mason/bin/jdtls",
-  }
-
-  -- Configure settings in the JDTLS server
-  local settings = {
+  settings = {
     java = {
       -- Enable code formatting
       format = {
@@ -249,73 +192,52 @@ local function setup_jdtls()
         },
       },
     },
-  }
-
-  -- Create a table called init_options to pass the bundles with debug and testing jar, along with the extended client capablies to the start or attach function of JDTLS
-  local init_options = {
+  },
+  init_options = {
+    bundles = {},
     extendedClientCapabilities = extendedClientCapabilities,
-  }
+  },
+  on_attach = on_attach,
+}
+require("jdtls").start_or_attach(config)
 
-  -- Function that will be ran once the language server is attached
-  local on_attach = function(_, bufnr)
-    java_keymaps()
-
-    -- Setup the java debug adapter of the JDTLS server
-
-    -- Find the main method(s) of the application so the debug adapter can successfully start up the application
-    -- Sometimes this will randomly fail if language server takes to long to startup for the project, if a ClassDefNotFoundException occurs when running
-    -- the debug tool, attempt to run the debug tool while in the main class of the application, or restart the neovim instance
-    -- Unfortunately I have not found an elegant way to ensure this works 100%
-    -- Enable jdtls commands to be used in Neovim
-    -- Refresh the codelens
-    -- Code lens enables features such as code reference counts, implemenation counts, and more.
-    vim.lsp.codelens.refresh()
-
-    -- Setup a function that automatically runs every time a java file is saved to refresh the code lens
-    vim.api.nvim_create_autocmd("BufWritePost", {
-      pattern = { "*.java" },
-      callback = function()
-        local _, _ = pcall(vim.lsp.codelens.refresh)
-      end,
-    })
-  end
-
-  -- Create the configuration table for the start or attach function
-  local config = {
-    cmd = cmd,
-    root_dir = root_dir,
-    settings = settings,
-    capabilities = capabilities,
-    init_options = init_options,
-    on_attach = on_attach,
-  }
-
-  require("jdtls").start_or_attach(config)
-end
+vim.keymap.set("n", "<leader>co", "<Cmd>lua require'jdtls'.organize_imports()<CR>", { desc = "Organize Imports" })
+vim.keymap.set("n", "<leader>crv", "<Cmd>lua require('jdtls').extract_variable()<CR>", { desc = "Extract Variable" })
+vim.keymap.set(
+  "v",
+  "<leader>crv",
+  "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>",
+  { desc = "Extract Variable" }
+)
+vim.keymap.set("n", "<leader>crc", "<Cmd>lua require('jdtls').extract_constant()<CR>", { desc = "Extract Constant" })
+vim.keymap.set(
+  "v",
+  "<leader>crc",
+  "<Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>",
+  { desc = "Extract Constant" }
+)
+vim.keymap.set(
+  "v",
+  "<leader>crm",
+  "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>",
+  { desc = "Extract Method" }
+)
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "LSP declaration" })
-
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "LSP definition" })
-
 vim.keymap.set("n", "gr", function()
   require("telescope.builtin").lsp_references()
 end, { desc = "LSP references" })
-
 vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "LSP implementation" })
-
-vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP hoveer" })
-
-vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "LSP rename" })
-
-vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP code action" })
-
+vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "LSP hover" })
+vim.keymap.set("n", "<leader>ra", function()
+  require("nvchad.renamer").open()
+end, { desc = "LSP rename" })
+vim.keymap.set("n", "<leader>ca", function()
+  vim.lsp.buf.code_action()
+end, { desc = "LSP code action" })
 vim.keymap.set("n", "<leader>ds", vim.lsp.buf.document_symbol, { desc = "Document Symbols" })
-
 vim.keymap.set("n", "<leader>ws", vim.lsp.buf.workspace_symbol, { desc = "Workspace Symbols" })
-
 vim.keymap.set("n", "<leader>sd", vim.diagnostic.open_float, { desc = "Show Diagnostics" })
-
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous Diagnostic" })
-
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next Diagnostic" })
-
-setup_jdtls()
+vim.keymap.set("n", "<leader>fs", ":FzfLua lsp_workspace_symbols<CR>", { desc = "Find beans" })

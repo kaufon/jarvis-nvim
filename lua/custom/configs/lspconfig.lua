@@ -32,9 +32,6 @@ local servers = {
   "astro",
   "jdtls",
 }
-
--- require("java").setup()
--- require("lspconfig").jdtls.setup({})
 for _, server_name in ipairs(servers) do
   if server_name ~= "jdtls" then
   lspconfig[server_name].setup {
