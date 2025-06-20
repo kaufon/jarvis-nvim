@@ -1,44 +1,44 @@
 return {
-  "olimorris/codecompanion.nvim",
-  config = true,
-  dependencies = {
-    "nvim-lua/plenary.nvim",
-    "nvim-treesitter/nvim-treesitter",
-    -- {
-    --   "Davidyz/VectorCode",
-    --   version = "*",
-    --   build = "pipx upgrade vectorcode",
-    --   dependencies = { "nvim-lua/plenary.nvim" },
-    -- },
-  },
-  event = "VeryLazy",
-  opts = {
-    copilot = function()
-      return require("codecompanion.adapters").extend("copilot", {
-        schema = {
-          model = {
-            default = "claude-3.7-sonnet",
-          },
-        },
-      })
-    end,
-    extensions = {
-      -- vectorcode = {
-      --   opts = { add_tool = true, add_slash_command = true, tool_opts = {} },
-      -- },
-    },
-    strategies = {
-      chat = {
-        roles = {
-          user = "K.V",
-          llm = "Jarvis A.I",
-        },
-      },
-    },
-    display = {
-      chat = {
-        intro_message = "Welcome home sir! I am Jarvis A.I, your personal assistant. How can I help you today?",
-      },
-    },
-  },
+  -- "olimorris/codecompanion.nvim",
+  -- config = true,
+  -- dependencies = {
+  --   "nvim-lua/plenary.nvim",
+  --   "nvim-treesitter/nvim-treesitter",
+  --   -- {
+  --   --   "Davidyz/VectorCode",
+  --   --   version = "*",
+  --   --   build = "pipx upgrade vectorcode",
+  --   --   dependencies = { "nvim-lua/plenary.nvim" },
+  --   -- },
+  -- },
+  -- event = "VeryLazy",
+  -- opts = {
+  --   copilot = function()
+  --     return require("codecompanion.adapters").extend("copilot", {
+  --       schema = {
+  --         model = {
+  --           default = "claude-3.7-sonnet",
+  --         },
+  --       },
+  --     })
+  --   end,
+  --   extensions = {
+  --     -- vectorcode = {
+  --     --   opts = { add_tool = true, add_slash_command = true, tool_opts = {} },
+  --     -- },
+  --   },
+  --   strategies = {
+  --     chat = {
+  --       roles = {
+  --         user = "K.V",
+  --         llm = "Jarvis A.I",
+  --       },
+  --     },
+  --   },
+  --   display = {
+  --     chat = {
+  --       intro_message = "Welcome home sir! I am Jarvis A.I, your personal assistant. How can I help you today?",
+  --     },
+  --   },
+  -- },
 }
