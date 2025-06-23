@@ -18,6 +18,12 @@ local nvimWebDevicons = {
       -- Add this section for pattern-based matching
       override_by_extension = {
         -- This pattern matches any file that ends with ".module.ts"
+        ["service.ts"] = {
+          icon = "",
+          color = "#e0234e",
+          name = "DevIconNestModule", -- A unique name for the new rule
+        },
+
         ["module.ts"] = {
           icon = "",
           color = "#e0234e",
