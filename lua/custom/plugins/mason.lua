@@ -4,7 +4,6 @@ local mason = {
     lazy = true,
     opts = {
       ensure_installed = {
-        --mason package name goes here,for consult go to: https://github.com/williamboman/mason-lspconfig.nvim/blob/main/doc%2Fserver-mapping.md
         "clangd",
         "pyright",
         "rubocop",
