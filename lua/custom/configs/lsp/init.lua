@@ -12,7 +12,6 @@ local gopls_config = require "custom.configs.lsp.gopls"
 local lspconfig = require "lspconfig"
 
 local servers = {
-
   "clangd",
   "kulala_ls",
   "pyright",

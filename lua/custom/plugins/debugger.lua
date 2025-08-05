@@ -1,84 +1,646 @@
+-- return {
+--   "mfussenegger/nvim-dap",
+--   dependencies = {
+--     "nvim-neotest/nvim-nio",
+--     "rcarriga/nvim-dap-ui",
+--     "mfussenegger/nvim-dap-python",
+--     "theHamsta/nvim-dap-virtual-text",
+--   },
+--   event = "VeryLazy",
+--   config = function()
+--     local dap = require "dap"
+--     local dapui = require "dapui"
+--     local dap_python = require "dap-python"
+--
+--     require("dapui").setup {}
+--     require("nvim-dap-virtual-text").setup {
+--       commented = true, -- Show virtual text alongside comment
+--     }
+--
+--     -- Installs and configures the Python debugger adapter
+--     dap_python.setup "uv"
+--
+--     -- Define signs for the debugger
+--     vim.fn.sign_define("DapBreakpoint", {
+--       text = "",
+--       texthl = "DiagnosticSignError",
+--       linehl = "",
+--       numhl = "",
+--     })
+--
+--     vim.fn.sign_define("DapBreakpointRejected", {
+--       text = "",
+--       texthl = "DiagnosticSignError",
+--       linehl = "",
+--       numhl = "",
+--     })
+--
+--     vim.fn.sign_define("DapStopped", {
+--       text = "",
+--       texthl = "DiagnosticSignWarn",
+--       linehl = "Visual",
+--       numhl = "DiagnosticSignWarn",
+--     })
+--
+--     -- Automatically open/close the DAP UI when a debug session starts/ends
+--     dap.listeners.after.event_initialized["dapui_config"] = function()
+--       dapui.open()
+--     end
+--     dap.listeners.before.event_terminated["dapui_config"] = function()
+--       dapui.close()
+--     end
+--     dap.listeners.before.event_exited["dapui_config"] = function()
+--       dapui.close()
+--     end
+--     dap.configurations.python = {
+--       {
+--         type = "python", -- Tipo de debugger (provido pelo nvim-dap-python)
+--         request = "launch", -- 'launch' inicia um novo processo
+--         name = "FastAPI: Debug", -- Nome que aparecerá no menu do DAP
+--
+--         -- Diz ao DAP para executar o uvicorn como um módulo Python
+--         module = "uvicorn",
+--
+--         -- Argumentos passados para o comando `python -m uvicorn ...`
+--         args = {
+--           "main:app", -- Seu arquivo principal e a instância do FastAPI
+--           "--host",
+--           "127.0.0.1",
+--           "--port",
+--           "8000",
+--           "--reload", -- Opcional: reinicia o servidor ao salvar arquivos
+--         },
+--       },
+--     }
+--     -- Keymaps for debugging with descriptions
+--     vim.keymap.set("n", "<leader>db", function()
+--       dap.toggle_breakpoint()
+--     end, { desc = "[D]ebug: Toggle [B]reakpoint", noremap = true, silent = true })
+--
+--     vim.keymap.set("n", "<leader>dc", function()
+--       dap.continue()
+--     end, { desc = "[D]ebug: [C]ontinue", noremap = true, silent = true })
+--
+--     vim.keymap.set("n", "<leader>do", function()
+--       dap.step_over()
+--     end, { desc = "[D]ebug: Step [O]ver", noremap = true, silent = true })
+--
+--     vim.keymap.set("n", "<leader>di", function()
+--       dap.step_into()
+--     end, { desc = "[D]ebug: Step [I]nto", noremap = true, silent = true })
+--
+--     vim.keymap.set("n", "<leader>dO", function()
+--       dap.step_out()
+--     end, { desc = "[D]ebug: Step [O]ut", noremap = true, silent = true })
+--
+--     vim.keymap.set("n", "<leader>dq", function()
+--       dap.terminate()
+--     end, { desc = "[D]ebug: [Q]uit / Terminate", noremap = true, silent = true })
+--
+--     vim.keymap.set("n", "<leader>du", function()
+--       dapui.toggle()
+--     end, { desc = "[D]ebug: Toggle [U]I", noremap = true, silent = true })
+--   end,
+-- }
 return {
-  "mfussenegger/nvim-dap",
-  dependencies = {
-    -- Creates a beautiful debugger UI
-    "rcarriga/nvim-dap-ui",
-    "nvim-neotest/nvim-nio",
-
-    -- Installs the debug adapters for you
-    "williamboman/mason.nvim",
-    "jay-babu/mason-nvim-dap.nvim",
-
-    -- Add your own debuggers here
-    "leoluz/nvim-dap-go",
-    "mfussenegger/nvim-dap-python",
-  },
-  config = function()
-    local dap = require "dap"
-    local dapui = require "dapui"
-
-    require("mason-nvim-dap").setup {
-      -- Makes a best effort to setup the various debuggers with
-      -- reasonable debug configurations
-      automatic_setup = true,
-      automatic_installation = true,
-
-      -- You can provide additional configuration to the handlers,
-      -- see mason-nvim-dap README for more information
-      handlers = {},
-
-      -- You'll need to check that you have the required things installed
-      -- online, please don't ask me how to install them :)
-      ensure_installed = {
-        -- Update this to ensure that you have the debuggers for the langs you want
-        -- 'delve',
-        "debugpy",
+  {
+    "mfussenegger/nvim-dap",
+    init = function()
+      require("which-key").add {
+        {
+          "<Leader>d",
+          group = "Debug",
+          icon = { icon = "󰃤", hl = "DiagnosticError" },
+        },
+      }
+    end,
+    keys = {
+      {
+        "<Leader>dc",
+        function()
+          local filetypes = require("custom.configs.workspace.init").project_filetypes()
+          for _, filetype in ipairs(filetypes) do
+            _ = require("custom.configs.dap.adapters")[filetype]
+          end
+          require("dap").continue()
+          vim.opt.signcolumn = "yes:2"
+          -- load dap-view early to use a smaller terminal window by default
+          require "dap-view"
+          require "nvim-dap-virtual-text"
+        end,
+        desc = "Continue/start",
       },
-    }
+      {
+        "<Leader>dr",
+        function()
+          require("dap").restart()
+        end,
+        desc = "Restart",
+      },
+      {
+        "<Leader>dq",
+        function()
+          require("dap").terminate()
+        end,
+        desc = "Close",
+      },
+      {
+        "<Leader>dQ",
+        function()
+          require("dap.breakpoints").clear()
+          vim.opt.signcolumn = "yes:1"
+        end,
+        desc = "Clear breakpoints",
+      },
+      {
+        "<Leader>do",
+        function()
+          require("dap").step_over()
+        end,
+        desc = "Step over",
+      },
+      {
+        "<Leader>d>",
+        function()
+          require("dap").step_into()
+        end,
+        desc = "Step into",
+      },
+      {
+        "<Leader>d<",
+        function()
+          require("dap").step_out()
+        end,
+        desc = "Step out",
+      },
+      {
+        "<Leader>dp", -- previous
+        function()
+          require("dap").step_back()
+        end,
+        desc = "Step back",
+      },
+      {
+        "<Leader>db",
+        function()
+          require("dap").toggle_breakpoint()
+          vim.opt.signcolumn = "yes:2"
+        end,
+        desc = "Toggle breakpoint",
+      },
+      {
+        "<Leader>dB",
+        function()
+          require("dap").set_breakpoint(vim.fn.input "Breakpoint condition: ")
+        end,
+        desc = "Toggle conditional breakpoint",
+      },
+      {
+        "<Leader>de",
+        function()
+          require("dap").set_exception_breakpoints()
+        end,
+        desc = "Set exception breakpoints",
+      },
+      {
+        "<Leader>dl",
+        function()
+          require("dap").list_breakpoints()
+        end,
+        desc = "List breakpoints",
+      },
+      { -- DAP UI looks better
+        "<Leader>dS",
+        function()
+          local widgets = require "dap.ui.widgets"
+          widgets.centered_float(widgets.scopes, { border = "rounded" })
+        end,
+        desc = "Scopes",
+      },
+      {
+        "<Leader>dE",
+        function()
+          require("dap.ui.widgets").hover()
+        end,
+        desc = "Eval",
+      },
+      {
+        "<Leader>dR",
+        function()
+          require("dap").repl.open()
+        end,
+        desc = "REPL",
+      },
+    },
+    config = function()
+      local dap = require "dap"
+      -- when hitting a breakpoint use an already open window containing the breakpoint buffer
+      -- instead of switching the current window to the other buffer
+      dap.defaults.fallback.switchbuf = "usevisible,usetab,uselast"
+      dap.defaults.fallback.exception_breakpoints = { "uncaught" } -- { 'raised', 'uncaught' }
 
-    -- Basic debugging keymaps, feel free to change to your liking!
-    vim.keymap.set("n", "<leader>dc", dap.continue, { desc = "Debug: Start/Continue" })
-    vim.keymap.set("n", "<leader>di", dap.step_into, { desc = "Debug: Step Into" })
-    vim.keymap.set("n", "<leader>do", dap.step_over, { desc = "Debug: Step Over" })
-    vim.keymap.set("n", "<leader>dO", dap.step_out, { desc = "Debug: Step Out" })
-    vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Debug: Toggle Breakpoint" })
-    vim.keymap.set("n", "<leader>dB", function()
-      dap.set_breakpoint(vim.fn.input "Breakpoint condition: ")
-    end, { desc = "Debug: Set Breakpoint" })
+      dap.listeners.after.event_exited.dap_view_config = function(_, body)
+        if body and body.exitCode then
+          if body.exitCode == 0 and package.loaded["dap-view"] then
+            require("dap-view").close(true)
+          else
+            local term_winnr = assert(require("dap-view.term").open_term_buf_win())
+            local term_bufnr = vim.api.nvim_win_get_buf(term_winnr)
+            vim.api.nvim_set_current_win(term_winnr)
+            local total_lines = vim.api.nvim_buf_line_count(term_bufnr)
+            vim.api.nvim_win_set_cursor(term_winnr, { total_lines, 0 })
+          end
+        end
+      end
+      dap.listeners.after.event_terminated.dap_view_config = function(_, body)
+        if body and body.restart then
+          -- TODO: if dap-view open keep it open
+          return
+        end
+      end
+      -- some adapters send disconnect response instead of terminated
+      dap.listeners.after.disconnect.dap_view_config = function()
+        require("dap-view").close(true)
+      end
 
-    -- Dap UI setup
-    -- For more information, see |:help nvim-dap-ui|
-    dapui.setup {
-      -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
-      icons = { expanded = "▾", collapsed = "▸", current_frame = "*" },
-    }
-    --   controls = {
-    --     icons = {
-    --       pause = "⏸",
-    --       play = "▶",
-    --       step_into = "⏎",
-    --       step_over = "⏭",
-    --       step_out = "⏮",
-    --       step_back = "b",
-    --       run_last = "▶▶",
-    --       terminate = "⏹",
-    --       disconnect = "⏏",
-    --     },
-    --   },
-    -- }
+      local function close_dapui()
+        if package.loaded.dapui then
+          require("dapui").close()
+        end
+      end
+      dap.listeners.after.event_exited.dapui_config = function()
+        close_dapui()
+      end
+      dap.listeners.after.event_terminated.dapui_config = function()
+        close_dapui()
+      end
+      dap.listeners.after.disconnect.dapui_config = function()
+        close_dapui()
+      end
 
-    -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    vim.keymap.set("n", "<dbs>", dapui.toggle, { desc = "Debug: See last session result." })
+      vim.fn.sign_define("DapBreakpoint", {
+        text = "●",
+        texthl = "DiagnosticError",
+      })
+      vim.fn.sign_define("DapBreakpointCondition", {
+        text = "◌", -- ○
+        texthl = "DiagnosticError",
+      })
+      vim.fn.sign_define("DapLogPoint", {
+        text = "•",
+        texthl = "DiagnosticInfo",
+      })
+      vim.fn.sign_define("DapStopped", {
+        text = "■",
+        texthl = "Special",
+      })
 
-    dap.listeners.after.event_initialized["dapui_config"] = dapui.open
-    dap.listeners.before.event_terminated["dapui_config"] = dapui.close
-    dap.listeners.before.event_exited["dapui_config"] = dapui.close
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "dap-repl" },
+        callback = function(args)
+          -- scheduling is necessary because on FileType event the buffer is not assigned to a window yet
+          vim.schedule(function()
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              if vim.api.nvim_win_get_buf(win) == args.buf then
+                vim.wo[win].fillchars = "eob: "
+                vim.wo[win].statuscolumn = ""
+                return
+              end
+            end
+          end)
+        end,
+      })
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "dap-repl",
+        callback = function()
+          require("dap.ext.autocompl").attach()
+        end,
+      })
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "dap-float", "dap-repl" },
+        callback = function(args)
+          vim.keymap.set("n", "q", "<C-w>q", {
+            buffer = args.buf,
+            silent = true,
+            desc = "Close",
+          })
+        end,
+      })
+    end,
+  },
+  {
+    "igorlfs/nvim-dap-view",
+    cmd = { "DapViewOpen", "DapViewToggle", "DapViewWatch" },
+    keys = {
+      {
+        "<Leader>dv",
+        function()
+          require("dap-view").toggle()
+        end,
+        desc = "Toggle DAP view",
+      },
+      {
+        "<Leader>dw",
+        function()
+          require("dap-view").add_expr()
+        end,
+        desc = "Watch expression",
+      },
+    },
+    ---@module 'dap-view.config'
+    ---@type Config
+    ---@diagnostic disable-next-line: missing-fields
+    opts = {
+      ---@diagnostic disable-next-line: missing-fields
+      windows = {
+        ---@diagnostic disable-next-line: missing-fields
+        terminal = {
+          start_hidden = true,
+          hide = { "go" },
+        },
+      },
+    },
+    config = function(_, opts)
+      require("dap-view").setup(opts)
 
-    -- Install golang specific config
-    -- require('dap-go').setup()
-    local dap_python_path = "~/.local/share/nvim/mason/packages/debugpy/venv/bin/python"
-    require("dap-python").setup(dap_python_path)
-  end,
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "dap-view" },
+        callback = function(args)
+          -- scheduling is necessary because on FileType event the buffer is not assigned to a window yet
+          vim.schedule(function()
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              if vim.api.nvim_win_get_buf(win) == args.buf then
+                vim.wo[win].fillchars = "eob: "
+                vim.wo[win].listchars = "tab:  "
+                return
+              end
+            end
+          end)
+        end,
+      })
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "dap-view-term" },
+        callback = function(args)
+          -- scheduling is necessary because on FileType event the buffer is not assigned to a window yet
+          vim.schedule(function()
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              if vim.api.nvim_win_get_buf(win) == args.buf then
+                vim.wo[win].cursorline = false
+                vim.wo[win].signcolumn = "no"
+                return
+              end
+            end
+          end)
+        end,
+      })
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "dap-view", "dap-view-term" },
+        callback = function(args)
+          vim.keymap.set("n", "q", "<C-w>q", {
+            buffer = args.buf,
+            silent = true,
+            desc = "Close",
+          })
+        end,
+      })
+    end,
+  },
+  {
+    "rcarriga/nvim-dap-ui",
+    keys = {
+      {
+        "<Leader>du",
+        function()
+          require("dapui").toggle {}
+        end,
+        desc = "Toggle DAP UI",
+      },
+      {
+        "<Leader>ds",
+        function()
+          ---@diagnostic disable-next-line: missing-fields
+          require("dapui").float_element("scopes", { enter = true })
+        end,
+        desc = "Scopes",
+      },
+      {
+        "<Leader>de",
+        function()
+          require("dapui").eval()
+        end,
+        desc = "Eval",
+        mode = { "n", "v" },
+      },
+    },
+    ---@module 'dapui.config'
+    ---@type dapui.Config
+    ---@diagnostic disable-next-line: missing-fields
+    opts = {
+      icons = {
+        expanded = "",
+        collapsed = "",
+        current_frame = "▸",
+      },
+      layouts = {
+        {
+          elements = {
+            { id = "scopes", size = 0.5 },
+            { id = "breakpoints", size = 0.1 },
+            { id = "stacks", size = 0.2 },
+            { id = "watches", size = 0.2 },
+          },
+          size = 0.2, -- 20% of width
+          position = "left",
+        },
+        {
+          elements = {
+            -- 'repl',
+            "console",
+          },
+          size = 0.2, -- 20% of height
+          position = "bottom",
+        },
+      },
+      ---@diagnostic disable-next-line: missing-fields
+      controls = {
+        enabled = true,
+        ---@diagnostic disable-next-line: missing-fields
+        icons = {
+          terminate = "■",
+        },
+      },
+      ---@diagnostic disable-next-line: missing-fields
+      floating = {
+        max_height = 0.6,
+        max_width = 0.7,
+      },
+      render = {
+        indent = 2,
+        max_type_length = nil,
+        max_value_lines = nil,
+      },
+    },
+    config = function(_, opts)
+      require("dapui").setup(opts)
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "dapui_console",
+          "dapui_scopes",
+          "dapui_breakpoints",
+          "dapui_stacks",
+          "dapui_watches",
+        },
+        callback = function(args)
+          -- scheduling is necessary because on FileType event the buffer is not assigned to a window yet
+          vim.schedule(function()
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              if vim.api.nvim_win_get_buf(win) == args.buf then
+                vim.wo[win].fillchars = "eob: "
+                vim.wo[win].statuscolumn = ""
+                return
+              end
+            end
+          end)
+        end,
+      })
+    end,
+  },
+  {
+    "theHamsta/nvim-dap-virtual-text",
+    lazy = true,
+    opts = {
+      enabled = true,
+      enabled_commands = false,
+      highlight_changed_variables = true,
+      all_references = false,
+      all_frames = false,
+      --- A callback that determines how a variable is displayed or whether it should be omitted
+      --- @param variable Variable https://microsoft.github.io/debug-adapter-protocol/specification#Types_Variable
+      --- @param buf number
+      --- @param stackframe dap.StackFrame https://microsoft.github.io/debug-adapter-protocol/specification#Types_StackFrame
+      --- @param node userdata tree-sitter node identified as variable definition of reference (see `:h tsnode`)
+      --- @param options nvim_dap_virtual_text_options Current options for nvim-dap-virtual-text
+      --- @return string|nil A text how the virtual text should be displayed or nil, if this variable shouldn't be displayed
+      display_callback = function(variable, buf, stackframe, node, options)
+        if #variable.value > 30 then
+          return
+        end
+        -- by default, strip out new line characters
+        if options.virt_text_pos == "inline" then
+          return " = " .. variable.value:gsub("%s+", " ")
+        else
+          return variable.name .. " = " .. variable.value:gsub("%s+", " ")
+        end
+      end,
+    },
+  },
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    lazy = true,
+    dependencies = "mason.nvim",
+    cmd = { "DapInstall", "DapUninstall" },
+    opts = {
+      automatic_installation = true,
+      handlers = {},
+      ensure_installed = {},
+    },
+  },
+  {
+    "mfussenegger/nvim-dap-python",
+    lazy = true,
+    dependencies = {
+      {
+        "mason-nvim-dap.nvim",
+        opts = function(_, opts)
+          opts.ensure_installed = opts.ensure_installed or {}
+          table.insert(opts.ensure_installed, "python")
+        end,
+      },
+    },
+    init = function()
+      require("custom.configs.dap.adapters").python = "dap-python"
+    end,
+    ---@module 'dap-python'
+    ---@type dap-python.setup.opts
+    opts = {
+      include_configs = false,
+      console = "internalConsole",
+    },
+    config = function(_, opts)
+      local py = require "dap-python"
+      py.setup(vim.env.MASON .. "/packages/debugpy/venv/bin/python", opts)
+      py.test_runner = "pytest"
+      local dap = require "dap"
+      local configs = dap.configurations.python or {}
+      dap.configurations.python = configs
+      table.insert(configs, {
+        type = "python",
+        request = "launch",
+        name = "Launch file",
+        program = "${file}",
+        console = opts.console,
+        pythonPath = opts.pythonPath,
+      })
+      table.insert(configs, {
+        type = "python",
+        request = "launch",
+        name = "Launch file with arguments",
+        program = "${file}",
+        args = function()
+          local args_string = vim.fn.input "Arguments: "
+          return vim.split(args_string, " +")
+        end,
+        console = opts.console,
+        pythonPath = opts.pythonPath,
+      })
+      table.insert(configs, {
+        type = "python",
+        request = "launch",
+        name = "Launch main.py",
+        program = function()
+          return "./main.py"
+        end,
+        pythonPath = opts.pythonPath,
+      })
+      table.insert(configs, {
+        type = "python",
+        request = "launch",
+        name = "FastAPI module",
+        module = "uvicorn",
+        args = function()
+          return {
+            vim.fn.input("FastAPI app module > ", "main:app", "file"),
+            -- '--reload', -- doesn't work
+            "--use-colors",
+          }
+        end,
+        pythonPath = "python",
+        console = "integratedTerminal",
+      })
+      table.insert(configs, {
+        type = "python",
+        request = "attach",
+        name = "Attach remote",
+        mode = "remote",
+        host = function()
+          local host = vim.fn.input "Host [127.0.0.1]: "
+          return host ~= "" and host or "127.0.0.1"
+        end,
+        port = function()
+          return tonumber(vim.fn.input "Port [5678]: ") or 5678
+        end,
+        pathMappings = {
+          {
+            localRoot = function()
+              return vim.fn.input("Local code folder > ", vim.uv.cwd(), "file")
+            end,
+            remoteRoot = function()
+              return vim.fn.input("Container code folder > ", "/", "file")
+            end,
+          },
+        },
+      })
+    end,
+  },
 }
