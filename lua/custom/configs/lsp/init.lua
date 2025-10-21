@@ -40,7 +40,7 @@ for _, server_name in ipairs(servers) do
     }
   end
 end
-lspconfig.solargraph.setup { solarpgraph_config }
+-- lspconfig.solargraph.setup { solarpgraph_config }
 lspconfig.gopls.setup { gopls_config }
 
 vim.lsp.config.vtsls = vtsls_config

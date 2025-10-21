@@ -10,11 +10,14 @@ return {
           args = { "format", "$FILENAME" },
           stdin = false,
         },
+        biome = {
+          formatWithErrors = true
+        }
       },
       formatters_by_ft = {
         http = { "kulala" },
         lua = { "stylua" },
-        ruby = { "rubyfmt" },
+        ruby = { "rubocop" },
         erb = { "htmlbeautifier" },
         html = { "htmlbeautifier" },
         bash = { "beautysh" },
@@ -37,8 +40,8 @@ return {
       vim.keymap.set({ "n", "v" }, "<leader>fm", function()
         conform.format {
           lsp_fallback = true,
-          async = false,
-          timeout_ms = 1000,
+          async = true,
+          timeout_ms = 5000,
         }
       end, { desc = "Format file 🐨" }),
     }
