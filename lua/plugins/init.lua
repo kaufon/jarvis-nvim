@@ -141,9 +141,25 @@ local default_plugins = {
         config = function(_, opts)
           require("nvim-autopairs").setup(opts)
 
-          -- setup cmp for autopairs
           local cmp_autopairs = require "nvim-autopairs.completion.cmp"
-          require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
+
+          -- Get the original autopairs function
+          local original_confirm_done_callback = cmp_autopairs.on_confirm_done()
+
+          -- Register our new *conditional* callback
+          require("cmp").event:on("confirm_done", function(cmp_entry)
+            -- Check the filetype of the current buffer
+            local filetype = vim.bo.filetype
+
+            -- If the filetype is 'ruby', DO NOTHING.
+            if filetype == 'ruby' then
+              return
+            end
+
+            -- Otherwise, for TS, Python, Rust, etc.,
+            -- run the original autopairs function
+            original_confirm_done_callback(cmp_entry)
+          end)
         end,
       },
 
@@ -154,6 +170,7 @@ local default_plugins = {
         "hrsh7th/cmp-nvim-lsp",
         "hrsh7th/cmp-buffer",
         "hrsh7th/cmp-path",
+        "weizheheng/ror.nvim", -- Make sure it's a dependency
       },
     },
     opts = function()
