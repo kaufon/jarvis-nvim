@@ -24,7 +24,9 @@ local treeSitter =
       "json",
       "java",
       "groovy",
-      "rust"
+      "rust",
+      "hcl",
+      "terraform",
     }
   end
 }

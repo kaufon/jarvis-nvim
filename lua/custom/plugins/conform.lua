@@ -23,6 +23,7 @@ return {
         bash = { "beautysh" },
         yaml = { "yamlfix" },
         css = { "prettierd" },
+        terraform={"terraform_fmt"},
         markdown = { "prettierd" },
         scss = { "prettierd" },
         go = { "gofumpt", "goimports-reviser", stop_after_first = false },

@@ -7,6 +7,8 @@ local capabilities = base.capabilities
 local vtsls_config = require "custom.configs.lsp.vtsls"
 local vue_ls_config = require "custom.configs.lsp.vue_ls"
 local solarpgraph_config = require "custom.configs.lsp.solargraph"
+local terraformls_config = require "custom.configs.lsp.terraform"
+local tflint_config = require "custom.configs.lsp.tflint"
 local gopls_config = require "custom.configs.lsp.gopls"
 
 local lspconfig = require "lspconfig"
@@ -45,5 +47,7 @@ lspconfig.gopls.setup { gopls_config }
 
 vim.lsp.config.vtsls = vtsls_config
 vim.lsp.config.volar = vue_ls_config
+vim.lsp.config.terraformls = terraformls_config
+vim.lsp.config.tflint = tflint_config
 
-vim.lsp.enable { "vtsls", "volar" }
+vim.lsp.enable { "vtsls", "volar","terraformls"}
