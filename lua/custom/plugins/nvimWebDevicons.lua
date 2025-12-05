@@ -9,6 +9,16 @@ local nvimWebDevicons = {
           color = "#ff8587",
           name = "DevIconRb",
         },
+        tfstate = {
+          icon = "",
+          color = "#cbcb41",
+          name = "DevIconTfstate",
+        },
+        ["tfstate.backup"] = {
+          icon = "",
+          color = "#cbcb41",
+          name = "DevIconTfstate",
+        },
         ["nest-cli.json"] = {
           icon = "",
           color = "#e0234e",

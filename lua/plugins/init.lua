@@ -275,7 +275,12 @@ end
 vim.filetype.add({
   extension = {
     rest = "http",
-  }
+    tfstate = "json",
+  },
+
+    pattern = {
+      [".*%.tfstate%.backup"] = "json",
+    },
 })
 vim.cmd [[
   highlight LspInlayHint guifg=#B0B0B0 guibg=#2E2E2E
