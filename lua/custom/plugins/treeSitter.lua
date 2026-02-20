@@ -26,6 +26,7 @@ local treeSitter =
       "groovy",
       "rust",
       "hcl",
+      "dart",
       "terraform",
     }
   end

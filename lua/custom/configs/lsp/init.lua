@@ -50,4 +50,24 @@ vim.lsp.config.volar = vue_ls_config
 vim.lsp.config.terraformls = terraformls_config
 vim.lsp.config.tflint = tflint_config
 
-vim.lsp.enable { "vtsls", "volar","terraformls"}
+require("lspconfig").dartls.setup({
+  cmd = { "dart", "language-server", "--protocol=lsp" },
+  filetypes = { "dart" },
+  init_options = {
+    closingLabels = true,
+    flutterOutline = true,
+    onlyAnalyzeProjectsWithOpenFiles = true,
+    outline = true,
+    suggestFromUnimportedLibraries = true,
+  },
+  settings = {
+    dart = {
+      completeFunctionCalls = true,
+      showTodos = true,
+    },
+  },
+  on_attach = function(client, bufnr)
+  end,
+})
+
+vim.lsp.enable { "vtsls", "volar", "terraformls" }
