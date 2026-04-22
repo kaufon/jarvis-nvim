@@ -21,6 +21,8 @@ return {
         erb = { "htmlbeautifier" },
         html = { "htmlbeautifier" },
         bash = { "beautysh" },
+        shell = { "beautysh" },
+        sh = { "beautysh" },
         yaml = { "yamlfix" },
         css = { "prettierd" },
         terraform={"terraform_fmt"},

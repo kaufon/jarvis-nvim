@@ -1,34 +1,31 @@
 return {
   "yetone/avante.nvim",
-  build = "make", -- ⚠️ must add this line! ! !
+  build = "make",
   event = "VeryLazy",
-  version = false, -- Never set this value to "*"! Never!
+  version = false,
   ---@module 'avante'
   ---@type avante.Config
   opts = {
-    provider = "copilot",
-    -- providers = {
-    --   gemini = {
-    --     endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-    --     model = "gemini-2.0-flash",
-    --     timeout = 30000, -- Timeout in milliseconds
-    --     extra_request_body = {
-    --       temperature = 0.75,
-    --       max_tokens = 20480,
-    --     },
-    --   },
-    -- },
-    disabled_tools = {
-      "list_files", -- Built-in file operations
-      "search_files",
-      "read_file",
-      "create_file",
-      "rename_file",
-      "delete_file",
-      "create_dir",
-      "rename_dir",
-      "delete_dir",
-      "bash", -- Built-in terminal access
+    instructions_file = "AGENTS.MD",
+    provider = "gemini-cli",
+    mode = "agentic",
+    acp_providers = {
+      ["gemini-cli"] = {
+        command = "gemini",
+        args = { "--acp" },
+        auth_method = "oauth-personal",
+        env = {
+          NODE_NO_WARNINGS = "1",
+          GEMINI_DEFAULT_AUTH_TYPE = "oauth-personal",
+        },
+      },
+    },
+    input = {
+      provider = "snacks",
+      provider_opts = {
+        title = "Avante Input",
+        icon = " ",
+      },
     },
     system_prompt = function()
       local hub = require("mcphub").get_hub_instance()
