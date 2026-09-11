@@ -7,16 +7,28 @@ return {
   ---@type avante.Config
   opts = {
     instructions_file = "AGENTS.MD",
-    provider = "gemini-cli",
+    provider = "claude-code",
+    session_recovery = { enabled = false },
     mode = "agentic",
     acp_providers = {
-      ["gemini-cli"] = {
-        command = "gemini",
-        args = { "--acp" },
-        auth_method = "oauth-personal",
+      ["antigravity"] = {
+        command = "antigravity-acp",
+        args = {},
+        auth_method = "agy-agent",
         env = {
           NODE_NO_WARNINGS = "1",
-          GEMINI_DEFAULT_AUTH_TYPE = "oauth-personal",
+          HOME = os.getenv "HOME",
+          PATH = os.getenv "PATH",
+          AGY_BIN = vim.fn.exepath "agy",
+        },
+      },
+      ["claude-code"] = {
+        command = "npx",
+        args = { "@agentclientprotocol/claude-agent-acp" },
+        env = {
+          NODE_NO_WARNINGS = "1",
+          HOME = os.getenv "HOME",
+          PATH = os.getenv "PATH",
         },
       },
     },
@@ -27,16 +39,6 @@ return {
         icon = " ",
       },
     },
-    system_prompt = function()
-      local hub = require("mcphub").get_hub_instance()
-      return hub and hub:get_active_servers_prompt() or ""
-    end,
-    -- Using function prevents requiring mcphub before it's loaded
-    custom_tools = function()
-      return {
-        require("mcphub.extensions.avante").mcp_tool(),
-      }
-    end,
   },
 
   dependencies = {
@@ -44,34 +46,27 @@ return {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
     "echasnovski/mini.pick",
-    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
-    "ibhagwan/fzf-lua", -- for file_selector provider fzf
-    "stevearc/dressing.nvim", -- for input provider dressing
-    "folke/snacks.nvim", -- for input provider snacks
-    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-    "zbirenbaum/copilot.lua", -- for providers='copilot'
+    "nvim-telescope/telescope.nvim",
+    "hrsh7th/nvim-cmp",
+    "ibhagwan/fzf-lua",
+    "stevearc/dressing.nvim",
+    "folke/snacks.nvim",
+    "nvim-tree/nvim-web-devicons",
+    "zbirenbaum/copilot.lua",
     {
-      -- support for image pasting
       "HakonHarnes/img-clip.nvim",
       event = "VeryLazy",
       opts = {
-        -- recommended settings
         default = {
           embed_image_as_base64 = false,
           prompt_for_file_name = false,
-          drag_and_drop = {
-            insert_mode = true,
-          },
+          drag_and_drop = { insert_mode = true },
         },
       },
     },
     {
-      -- Make sure to set this up properly if you have lazy=true
       "MeanderingProgrammer/render-markdown.nvim",
-      opts = {
-        file_types = { "markdown", "Avante" },
-      },
+      opts = { file_types = { "markdown", "Avante" } },
       ft = { "markdown", "Avante" },
     },
   },

@@ -69,15 +69,27 @@ local default_plugins = {
 
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
     event = { "BufReadPost", "BufNewFile" },
-    cmd = { "TSInstall", "TSBufEnable", "TSBufDisable", "TSModuleInfo" },
+    cmd = { "TSInstall", "TSUpdate" },
     build = ":TSUpdate",
     opts = function()
       return require "plugins.configs.treesitter"
     end,
     config = function(_, opts)
       dofile(vim.g.base46_cache .. "syntax")
-      require("nvim-treesitter.configs").setup(opts)
+
+      require("nvim-treesitter").install(opts.ensure_installed or {})
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = opts.ensure_installed or {},
+        callback = function()
+          vim.treesitter.start()
+          if opts.indent and opts.indent.enable then
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
     end,
   },
 
@@ -152,7 +164,7 @@ local default_plugins = {
             local filetype = vim.bo.filetype
 
             -- If the filetype is 'ruby', DO NOTHING.
-            if filetype == 'ruby' then
+            if filetype == "ruby" then
               return
             end
 
@@ -184,12 +196,12 @@ local default_plugins = {
   {
     "numToStr/Comment.nvim",
     keys = {
-      { "gcc", mode = "n",          desc = "Comment toggle current line" },
-      { "gc",  mode = { "n", "o" }, desc = "Comment toggle linewise" },
-      { "gc",  mode = "x",          desc = "Comment toggle linewise (visual)" },
-      { "gbc", mode = "n",          desc = "Comment toggle current block" },
-      { "gb",  mode = { "n", "o" }, desc = "Comment toggle blockwise" },
-      { "gb",  mode = "x",          desc = "Comment toggle blockwise (visual)" },
+      { "gcc", mode = "n", desc = "Comment toggle current line" },
+      { "gc", mode = { "n", "o" }, desc = "Comment toggle linewise" },
+      { "gc", mode = "x", desc = "Comment toggle linewise (visual)" },
+      { "gbc", mode = "n", desc = "Comment toggle current block" },
+      { "gb", mode = { "n", "o" }, desc = "Comment toggle blockwise" },
+      { "gb", mode = "x", desc = "Comment toggle blockwise (visual)" },
     },
     init = function()
       require("core.utils").load_mappings "comment"
@@ -234,7 +246,7 @@ local default_plugins = {
       for _, ext in ipairs(opts.extensions_list) do
         telescope.load_extension(ext)
       end
-      require("telescope").load_extension("ui-select")
+      require("telescope").load_extension "ui-select"
     end,
   },
 
@@ -244,12 +256,11 @@ local default_plugins = {
       require("telescope").setup {
         extensions = {
           ["ui-select"] = {
-            require("telescope.themes").get_dropdown {
-            }
-          }
-        }
+            require("telescope.themes").get_dropdown {},
+          },
+        },
       }
-    end
+    end,
   },
   -- Only load whichkey after all the gui
   {
@@ -272,16 +283,16 @@ if #config.plugins > 0 then
   table.insert(default_plugins, { import = config.plugins })
 end
 
-vim.filetype.add({
+vim.filetype.add {
   extension = {
     rest = "http",
     tfstate = "json",
   },
 
-    pattern = {
-      [".*%.tfstate%.backup"] = "json",
-    },
-})
+  pattern = {
+    [".*%.tfstate%.backup"] = "json",
+  },
+}
 vim.cmd [[
   highlight LspInlayHint guifg=#B0B0B0 guibg=#2E2E2E
 ]]

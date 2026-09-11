@@ -52,8 +52,18 @@ opt.whichwrap:append "<>[]hl"
 g.mapleader = " "
 
 -- disable some default providers
-for _, provider in ipairs { "node", "perl", "python3", "ruby" } do
+for _, provider in ipairs { "node", "perl", "ruby" } do
   vim.g["loaded_" .. provider .. "_provider"] = 0
+end
+
+-- python provider
+local venv_dir = vim.fn.expand "~/.virtualenvs/neovim"
+local venv_python = venv_dir .. "/bin/python3"
+if vim.fn.filereadable(venv_python) == 1 then
+  vim.g.python3_host_prog = venv_python
+  vim.env.PATH = venv_dir .. "/bin:" .. vim.env.PATH
+elseif vim.fn.executable "python3" == 1 then
+  vim.g.python3_host_prog = vim.fn.exepath "python3"
 end
 
 -- add binaries installed by mason.nvim to path

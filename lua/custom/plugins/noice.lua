@@ -12,6 +12,15 @@ local noice =
         enabled = false,
       }
     },
+    routes = {
+      {
+        filter = {
+          event = "notify",
+          find = "Unknown notification method",
+        },
+        opts = { skip = true },
+      },
+    },
     views = {
       cmdline_popup = {
         position = {

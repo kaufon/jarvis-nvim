@@ -31,7 +31,7 @@ local servers = {
   "jdtls",
 }
 for _, server_name in ipairs(servers) do
-  if server_name ~= "jdtls" then
+  if server_name ~= "jdtls" and server_name ~= "pyright" then
     lspconfig[server_name].setup {
       on_attach = function(client, bufnr)
         client.server_capabilities.signatureHelpProvider = false
@@ -42,6 +42,32 @@ for _, server_name in ipairs(servers) do
     }
   end
 end
+
+-- pyright with automatic .venv detection
+lspconfig.pyright.setup {
+  on_attach = function(client, bufnr)
+    client.server_capabilities.signatureHelpProvider = false
+    on_attach(client, bufnr)
+  end,
+  capabilities = capabilities,
+  before_init = function(_, config)
+    local venv_path = vim.fs.find({ ".venv", "venv" }, { path = config.root_dir, upward = true })[1]
+    if venv_path then
+      config.settings = config.settings or {}
+      config.settings.python = config.settings.python or {}
+      config.settings.python.pythonPath = venv_path .. "/bin/python"
+    end
+  end,
+  settings = {
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "workspace",
+      },
+    },
+  },
+}
 -- lspconfig.solargraph.setup { solarpgraph_config }
 lspconfig.gopls.setup { gopls_config }
 
