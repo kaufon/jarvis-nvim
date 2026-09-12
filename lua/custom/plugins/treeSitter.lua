@@ -1,26 +1,29 @@
-local treeSitter = {
+return {
   "nvim-treesitter/nvim-treesitter",
   branch = "main",
-  event = { "BufReadPost", "BufNewFile" },
-  cmd = { "TSInstall", "TSUpdate" },
   build = ":TSUpdate",
-  opts = function()
-    return require "plugins.configs.treesitter"
-  end,
-  config = function(_, opts)
+  event = { "BufReadPost", "BufNewFile" },
+  config = function()
     dofile(vim.g.base46_cache .. "syntax")
 
-    require("nvim-treesitter").install(opts.ensure_installed or {})
+    local ensure_installed = { "ruby", "lua", "python", "vim", "vimdoc", "vue" }
+
+    local installed = require("nvim-treesitter.config").get_installed()
+    local to_install = vim.tbl_filter(function(lang)
+      return not vim.tbl_contains(installed, lang)
+    end, ensure_installed)
+
+    if #to_install > 0 then
+      require("nvim-treesitter").install(to_install)
+    end
 
     vim.api.nvim_create_autocmd("FileType", {
-      pattern = opts.ensure_installed or {},
       callback = function()
-        vim.treesitter.start()
-        if opts.indent and opts.indent.enable then
+        pcall(vim.treesitter.start)
+        pcall(function()
           vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        end
+        end)
       end,
     })
   end,
 }
-return treeSitter
